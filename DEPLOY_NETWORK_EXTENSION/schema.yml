@@ -1,0 +1,757 @@
+# ###################################################################################################### #
+# Copyright (c) 2025 Oracle and/or its affiliates, All rights reserved.                                  #
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl. #
+# ###################################################################################################### #
+
+title: "Oracle E-Business Suite Network Stack 1.0"
+description: "Oracle E-Business Suite Suite Network Stack 1.0 developed by OCI"
+schemaVersion: 1.0.0
+version: "1.0.0"
+locale: "en"
+
+###############################################################################################
+######################              Variable Groups                  ##########################
+###############################################################################################
+
+variableGroups:
+  - title: "Provider Variables"
+    visible: false
+    variables:
+      - "api_fingerprint"
+      - "api_private_key_path"
+      - "api_private_key"
+      - "region"
+      - "tenancy_ocid"
+      - "current_user_ocid"
+  
+  - title: "General Variables"
+    visible: true
+    variables:
+      - "ebs_workload_prefix"
+      - "core_lz_network_compartment_ocid"   
+      - "deploy_management"
+      - "deploy_ebs_category"
+      - "ebs_category"
+      
+  - title: "Compartment Variables"
+    visible: false
+    variables:
+      - "mgmt_compartment_ocid"
+      - "category_compartment_ocid"
+
+  - title: "Customize Network Variables"
+    visible: true
+    variables:
+      - "chosen_network_design_options"
+      - "hub_vcn_ocid"
+#      - "hub_drg_ocid"
+      - "define_net"
+      - "ebs_env_access_ip_cidr"
+      - "add_hub_vcn_route_drg"
+
+  - title: "Customize Management VCN Variables"
+    visible: true
+    variables:
+      
+      - "define_mgmt_net"
+      - "ebs_workload_mgmt_vcn_name"
+      - "ebs_workload_mgmt_vcn_cidr"
+      - "ebs_mgmt_lb_subnet_name"
+      - "ebs_mgmt_lb_subnet_cidr"
+      - "ebs_mgmt_app_subnet_name"
+      - "ebs_mgmt_app_subnet_cidr"
+
+
+  - title: "Customize Category VCN Variables"
+    visible: true
+    variables:
+      - "enable_oracle_database_exadb"
+      - "enable_external_app_lb"
+      - "allow_management_env_internet_access"
+      - "enable_file_system_storage"
+      - "customize_category_variables"
+      - "ebs_workload_category_vcn_name"
+      - "ebs_workload_category_vcn_cidr"
+      - "ebs_category_int_lb_subnet_name"
+      - "ebs_category_int_lb_subnet_cidr"
+      - "ebs_category_int_app_subnet_name"
+      - "ebs_category_int_app_subnet_cidr"
+      - "ebs_category_ext_lb_subnet_name"
+      - "ebs_category_ext_lb_subnet_cidr"
+      - "ebs_category_ext_app_subnet_name"
+      - "ebs_category_ext_app_subnet_cidr"
+      - "ebs_category_fss_subnet_name"
+      - "ebs_category_fss_subnet_cidr"
+      - "ebs_category_db_subnet_name"
+      - "ebs_category_db_subnet_cidr"
+      - "ebs_category_db_backup_subnet_name"
+      - "ebs_category_db_backup_subnet_cidr"
+      - "category_provided_src_subnet"
+      
+
+#  - title: "VCN Gateways"
+#    visible: true
+#    variables:
+#      - "mgmt_internet_gateway_display_name"
+#      - "category_internet_gateway_display_name"
+#      - "mgmt_nat_gateway_display_name"
+#      - "category_nat_gateway_display_name"
+#      - "mgmt_service_gateway_display_name"
+#      - "category_service_gateway_display_name"
+      
+
+  - title: "FSS Variables"
+    visible: true
+    variables:
+      - "ebs_category_mount_target_name"
+
+  - title: "Hidden Variables"
+    visible: false
+    variables:
+      - "ebs_env_access_dst_port_min"
+      - "ebs_env_access_dst_port_max"
+#     - "existing_prod_admin_group_name"
+      - "category_internet_gateway_display_name"
+      - "enable_mgmt_nat_gateway"
+      - "mgmt_nat_gateway_block_traffic"
+      - "category_nat_gateway_block_traffic"
+      - "enable_mgmt_service_gateway"
+      - "mgmt_service_gateway_services"
+      - "category_service_gateway_services"
+      - "enable_category_service_gateway"
+      - "enable_category_nat_gateway"
+      - "mgmt_internet_gateway_display_name"
+      - "category_internet_gateway_display_name"
+      - "mgmt_nat_gateway_display_name"
+      - "category_nat_gateway_display_name"
+      - "mgmt_service_gateway_display_name"
+      - "category_service_gateway_display_name"
+      - "hub_vcn_cidr_block"
+      - "hub_drg_ocid"
+      - "mgmt_compartment_ocid"
+      - "category_compartment_ocid"
+      
+      
+
+
+
+
+# ###############################################################################################
+# ######################              Provider Variables                  #######################
+# ###############################################################################################
+
+variables:
+  api_fingerprint:
+    type: string
+    description: "The fingerprint of API"
+    default: "Value not required in Oracle Resource Manager."
+    title: "Api Fingerprint"
+
+  api_private_key_path:
+    type: string
+    description: "The local path to the API private key"
+    default: "Value not required in Oracle Resource Manager."
+    title: "Api Private Key Path"
+
+  region:
+    type: string
+    description: "the OCI region LZ is deployed to."
+    title: "Region"
+    required: true
+
+  tenancy_ocid:
+    type: string
+    description: "The OCID of tenancy"
+    title: "Tenancy OCID"
+
+  current_user_ocid:
+    type: string
+    description: "OCID of the current user"
+    title: "Current User OCID"
+
+###############################################################################################
+######################              Compartment Variables                  ####################
+###############################################################################################
+  ebs_workload_prefix:
+    type: string
+    description: "This Prefix is append to resource names to maintain segregation between different EBS Workload Stacks. Maximum 6 lowercase alphabetical characters."
+    default: "clzwrk"
+    required: true
+    pattern: ^[a-z]{1,6}$
+    title: EBS Workload Prefix
+
+  core_lz_network_compartment_ocid:
+    type: oci:identity:compartment:id
+    dependsOn:
+      compartmentId: ${tenancy_ocid}
+    description: "Please Enter Core Landing Zone Network Compartment OCID."
+    default: ""
+    required: true
+    title: "Core LZ Network Compartment OCID."
+
+  deploy_management:
+    type: boolean
+    description: "Check to deploy Management VCN."
+    default: false
+    required: true
+    title: Deploy Management VCN
+
+  deploy_ebs_category:
+    type: boolean
+    description: "Deploy EBS Category VCN."
+    required: true
+    default: false
+    title: "Deploy EBS Category VCN."
+    
+  ebs_category: 
+    type: string
+    title: "EBS Category Name."
+    description: "Please provide the EBS Category Name in lowercase."
+    default: "prod"
+    required: true
+    pattern: ^[a-z]{1,15}$
+    visible: deploy_ebs_category
+
+
+# ###############################################################################################
+# ######################             Networking Variables                  ######################
+# ###############################################################################################
+  chosen_network_design_options:
+    type: enum
+    title: "Network Design Options"
+    description: "Option to create a Inter-Networking with MGMT and category VCN."
+    required: true
+    enum:
+      - "Hub and Spoke"
+      - "Standalone"
+    default: "Hub and Spoke"
+    visible:
+      or:
+      - deploy_management
+      - deploy_ebs_category
+
+  ebs_env_access_ip_cidr:
+    type: string
+    title: "IP CIDR Range to Access Cloud Manager Application"
+    description: "Oracle E-Business Suite Cloud Manager Application IP CIDR."
+    required: true
+    visible:
+      or:
+        - deploy_management
+        - deploy_ebs_category
+
+  add_hub_vcn_route_drg:
+    type: boolean
+    title: "Step 2: Add the Hub VCN Route on EBS WRK VCN via DRG."
+    description: "This Step need to be done after adding the Additional EBS WRK Route on Core LZ."
+    required: false
+
+  allow_management_env_internet_access:
+    type: boolean
+    title: "Allow Internet Access to MGMT VCN."
+    description: "Allow Internet Access to MGMT VCN."
+    default: false
+    required: true
+    visible:
+      and:
+        - eq:
+            - ${chosen_network_design_options}
+            - "HUB_AND_SPOKE"
+        - enable_external_app_lb
+        - deploy_ebs_category
+
+  define_mgmt_net:
+    type: boolean
+    title: "Customize EBS Workload Management Variables"
+    description: "Check to Customize EBS Workload Networking Resources Variables.By default, the EBS Workload Networks Resources using default value."
+    default: false
+    visible: deploy_management
+
+
+  enable_file_system_storage:
+    title: "Enable File System Storage Service"
+    description: "Enable the File System Storage Service."
+    type: boolean
+    default: false
+    required: true
+    visible: deploy_ebs_category
+  
+  enable_external_app_lb:
+    title: "Deploy External LBAAS and Application."
+    description: "Deploy External LBAAS and Application."
+    type: boolean
+    default: false
+    required: true
+    visible: deploy_ebs_category
+
+  hub_drg_ocid:
+    type: string
+    title: "Hub DRG OCID"
+    description: "Please Provide the Existing DRG OCID (Mandatory in case of HUB_AND_SPOKE Network Design)."
+    required: true
+    visible:
+      and:
+        - eq:
+          - ${chosen_network_design_options}
+          - "HUB_AND_SPOKE"
+      or:
+        - deploy_management
+        - deploy_ebs_category
+
+  hub_vcn_ocid:
+    type: oci:core:vcn:id
+    dependsOn:
+      compartmentId: ${core_lz_network_compartment_ocid}
+    title: "Hub VCN OCID"
+    description: "Please Provide the Hub VCN OCID(Mandatory in case of HUB_AND_SPOKE Network Design)."
+    required: true
+    visible:
+      and:
+        - eq:
+          - ${chosen_network_design_options}
+          - "HUB_AND_SPOKE"
+      or:
+        - deploy_management
+        - deploy_ebs_category
+
+  mgmt_compartment_ocid:
+    type: oci:identity:compartment:id
+    dependsOn:
+      compartmentId: ${tenancy_ocid}
+    title: "EBS Workload Management Compartment OCID"
+    decription: "Please provide the OCID of the EBS Workload Management Compartment"
+    required: false
+    visible: deploy_management
+
+  ebs_workload_mgmt_vcn_name:
+    type: string
+    title: "EBS Workload Management VCN Name."
+    description: "Please provide the Name for EBS Workload Management VCN."
+    default: "EBS-WORKLOAD-MGMT"
+    required: true
+    visible:
+      and:
+        - deploy_management
+        - and:
+          - define_mgmt_net
+
+
+  ebs_workload_mgmt_vcn_cidr:
+    type: array
+    items:
+      type: string
+    title: "EBS Workload Management VCN IP CIDR Block."
+    description: "Please provide the CIDR IP Block for EBS Workload Management VCN. By default Netmask 22 give 126 usable Hosts per Subnets (7 Subnet Max)."
+    default: "[\"10.0.0.0/22\"]"
+    required: true
+    visible:
+     and:
+      - deploy_management
+      - and:
+          - define_mgmt_net
+  
+  ebs_mgmt_lb_subnet_name:
+    type: string
+    title: "EBS Management Cloud Manager Load Balancer Subnet Name."
+    description: "Please provide the Name for EBS Management Load Balancer Subnet."
+    default: "MGMT-LB-SUBNET"
+    required: true
+    visible:
+      and:
+        - deploy_management
+        - and:
+          - define_mgmt_net
+  
+  ebs_mgmt_lb_subnet_cidr:
+    type: string
+    title: "EBS Management Cloud Manager Load Balancer Subnet IP CIDR."
+    description: "Please provide the IP CIDR Block for EBS Management Load Balancer Subnet."
+    required: false
+    visible:
+      and:
+        - deploy_management
+        - and:
+          - define_mgmt_net
+
+  ebs_mgmt_app_subnet_name:
+    type: string
+    title: "EBS Management Cloud Manager Application Subnet Name."
+    description: "Please provide the Name for EBS Management Application Subnet."
+    default: "MGMT-APP-SUBNET"
+    required: true
+    visible:
+      and:
+        - deploy_management
+        - and:
+          - define_mgmt_net
+  
+  ebs_mgmt_app_subnet_cidr:
+    type: string
+    title: "EBS Management Cloud Manager Application Subnet IP CIDR."
+    description: "Please provide the IP CIDR Block for EBS Management Application Subnet."
+    required: false
+    visible:
+      and:
+        - deploy_management
+        - and:
+          - define_mgmt_net
+  
+
+###############################################################################################
+######################              Category Subnet                  ##########################
+###############################################################################################
+  
+  category_compartment_ocid:
+    type: oci:identity:compartment:id
+    dependsOn:
+      compartmentId: ${tenancy_ocid}
+    title: "EBS Workload Category Compartment OCID"
+    decription: "Please provide the OCID of the EBS Workload Category Compartment"
+    required: false
+
+  enable_oracle_database_exadb:
+    type: boolean
+    title: "Deploy DB Backup Subnet."
+    description: "Option to Deploy the DB Backup Subnet"
+    required: true
+    default: false
+    visible: deploy_ebs_category
+
+  customize_category_variables:
+    type: boolean
+    title: "Customize EBS Workload Category Variables"
+    description: "Check to Customize EBS Workload Category Resources Variables. By default, the EBS Workload Category Resources using default value."
+    default: false
+    visible: deploy_ebs_category
+
+  ebs_workload_category_vcn_cidr:
+    type: array
+    items:
+      type: string
+    title: "EBS Workload Category VCN IP CIDR Block."
+    description: "Multi-line Please provide the CIDR IP Block for EBS Workload Category VCN. By default Netmask 22 give 126 usable Hosts per Subnets (7 Subnet Max)."
+    default: "[\"10.0.4.0/22\"]"
+    required: true
+    visible:
+      and:
+        - deploy_ebs_category
+        - and:
+          - customize_category_variables
+
+  
+  ebs_workload_category_vcn_name:
+    type: string
+    title: "EBS Workload Category VCN Name."
+    description: "Please provide the Name for EBS Category VCN."
+    visible:
+      and:
+        - deploy_ebs_category
+        - and:
+          - customize_category_variables
+
+  ebs_category_int_lb_subnet_name:
+    type: string
+    title: "EBS Category Internal Load Balancer Subnet Name."
+    description: "Please provide the Name for EBS Category Internal Load Balancer Subnet."
+    required: false
+    visible: 
+      and:
+        - deploy_ebs_category
+        - and:
+          - customize_category_variables 
+
+  ebs_category_int_lb_subnet_cidr:
+    type: string
+    title: "EBS Category Internal Load Balancer Subnet IP CIDR."
+    description: "Please provide the IP CIDR Block for EBS Category Internal Load Balancer."
+    required: false
+    visible: 
+      and:
+        - deploy_ebs_category
+        - and:
+          - customize_category_variables 
+  
+  # ebs_category_int_lb_dns_label:  
+  #   type: string
+  #   title: "EBS Category Internal Load Balancer Subnet DNS Label."
+  #   description: "Please provide the DNS Label for EBS Category Internal Load Balancer."
+  #   required: false
+  #   visible: define_net
+
+  ebs_category_int_app_subnet_name:
+    type: string
+    title: "EBS Category Internal Application Subnet Name."
+    description: "Please provide the Name for EBS Category Internal Application Subnet."
+    required: false
+    visible: 
+      and:
+        - deploy_ebs_category
+        - and:
+          - customize_category_variables 
+
+  ebs_category_int_app_subnet_cidr:
+    type: string
+    title: "EBS Category Internal Application Subnet IP CIDR."
+    description: "Please provide the IP CIDR Block for EBS Category Internal Application Subnet."
+    required: false
+    visible: 
+      and:
+        - deploy_ebs_category
+        - and:
+          - customize_category_variables 
+  
+  # ebs_category_int_app_dns_label:  
+  #   type: string
+  #   title: "EBS Category Internal Application Subnet DNS Label."
+  #   description: "Please provide the DNS Label for EBS Category Internal Application."
+  #   required: false
+  #   visible: define_net
+
+  ebs_category_ext_lb_subnet_name:
+    type: string
+    title: "EBS Category External Load Balancer Subnet Name."
+    description: "Please provide the Name for EBS Category External Load Balancer Subnet."
+    visible:
+      and:
+        - enable_external_app_lb
+        - deploy_ebs_category
+        - and:
+          - customize_category_variables 
+
+  ebs_category_ext_lb_subnet_cidr:
+    type: string
+    title: "EBS Category External Load Balancer Subnet IP CIDR."
+    description: "Please provide the IP CIDR Block for EBS Category External Load Balancer."
+    required: false
+    visible:
+      and:
+        - enable_external_app_lb
+        - deploy_ebs_category
+        - and:
+          - customize_category_variables 
+  
+  # ebs_category_ext_lb_dns_label:  
+  #   type: string
+  #   title: "EBS Category External Load Balancer Subnet DNS Label."
+  #   description: "Please provide the DNS Label for EBS Category External Load Balancer."
+  #   required: false
+  #   visible:
+  #     and:
+  #       - define_net
+  #       - enable_external_app_lb
+
+  ebs_category_ext_app_subnet_name:
+    type: string
+    title: "EBS Category External Application Subnet Name."
+    description: "Please provide the Name for EBS Category External Application Subnet."
+    visible:
+      and:
+        - enable_external_app_lb
+        - deploy_ebs_category
+        - and:
+          - customize_category_variables 
+
+  ebs_category_ext_app_subnet_cidr:
+    type: string
+    title: "EBS Category External Application Subnet IP CIDR."
+    description: "Please provide the IP CIDR Block for EBS Category External Application Subnet."
+    required: false
+    visible:
+      and:
+        - enable_external_app_lb
+        - deploy_ebs_category
+        - and:
+          - customize_category_variables 
+  
+  # ebs_category_ext_app_dns_label:  
+  #   type: string
+  #   title: "EBS Category External Application Subnet DNS Label."
+  #   description: "Please provide the DNS Label for EBS Category External Application."
+  #   required: false
+  #   visible:
+  #     and:
+  #       - define_net
+  #       - enable_external_app_lb
+
+  ebs_category_fss_subnet_name:
+    type: string
+    title: "EBS Category File System Storage Subnet Name."
+    description: "Please provide the Name for EBS Category External File System Storage Subnet."
+    visible:
+      and:
+        - enable_file_system_storage
+        - deploy_ebs_category
+        - and:
+          - customize_category_variables 
+
+  ebs_category_fss_subnet_cidr:
+    type: string
+    title: "EBS Category File System Storage Subnet IP CIDR."
+    description: "Please provide the IP CIDR Block for EBS Category File System Storage Subnet."
+    required: false
+    visible:
+      and:
+        - enable_file_system_storage
+        - deploy_ebs_category
+        - and:
+          - customize_category_variables 
+
+  # ebs_category_fss_dns_label:  
+  #   type: string
+  #   title: "EBS Category File System Storage Subnet DNS Label."
+  #   description: "Please provide the DNS Label for EBS Category File System Storage."
+  #   required: false
+  #   visible:
+  #     and:
+  #       - define_net
+  #       - enable_file_system_storage
+
+  ebs_category_db_subnet_name:
+    type: string
+    title: "EBS Category Database Subnet Name."
+    description: "Please provide the Name for EBS Category Database Subnet."
+    visible: 
+      and:
+        - deploy_ebs_category
+        - and:
+          - customize_category_variables 
+  
+  ebs_category_db_subnet_cidr:
+    type: string
+    title: "EBS Category Database Subnet IP CIDR."
+    description: "Please provide the IP CIDR Block for EBS Category Database Subnet."
+    required: false
+    visible: 
+      and:
+        - deploy_ebs_category
+        - and:
+          - customize_category_variables 
+  
+  # ebs_category_db_dns_label:
+  #   type: string
+  #   title: "EBS Category Database Subnet DNS Label."
+  #   description: "Please provide the DNS Label for EBS Category Database."
+  #   required: false
+  #   visible: define_net
+
+  ebs_category_db_backup_subnet_name:
+    type: string
+    title: "EBS Category Database Backup Subnet Name."
+    description: "Please provide the Name for EBS Category Database Backup Subnet."
+    visible:
+      and:
+        - deploy_ebs_category
+        - eq:
+          - ${oracle_database_service_type}
+          - "EXADB"
+  
+  ebs_category_db_backup_subnet_cidr:
+    type: string
+    title: "EBS Category Database Backup Subnet IP CIDR."
+    description: "Please provide the IP CIDR Block for EBS Category Database Backup Subnet."
+    required: false
+    visible:
+      and:
+        - deploy_ebs_category
+        - eq:
+          - ${oracle_database_service_type}
+          - "EXADB"
+
+  category_provided_src_subnet:
+    type: string
+    title: "Category NSG Rules Source Subnet CIDR"
+    description: "Provided source subnet for Category NSG rules if MGMT Subnet is not deployed"
+    required: false
+    visible:
+      and:
+        - deploy_ebs_category
+        - and:
+          - customize_category_variables 
+
+  
+  # ebs_category_db_backup_dns_label:
+  #   type: string
+  #   title: "EBS Category Database Backup Subnet DNS Label."
+  #   description: "Please provide the DNS Label for EBS Category Database Backup."
+  #   required: false
+  #   visible:
+  #     and:
+  #       - define_net
+  #       - and:
+  #         - configure_category_env_subnets
+  #       - eq:
+  #         - ${oracle_database_service_type}
+  #         - "EXADB"
+
+  enable_mgmt_nat_gateway:
+    type: boolean
+    title: "Enable Management NAT Gateway?"
+    default: false
+    description: "Whether or not to deploy the Management NAT Gateway."
+    visible:
+      and:
+        - deploy_management
+
+
+  enable_category_nat_gateway:
+    type: boolean
+    title: "Enable Category Nat Gateway?"
+    default: false
+    description: "Whether or not to deploy the Management NAT Gateway."
+    visible:
+      and:
+        - deploy_ebs_category
+
+  mgmt_nat_gateway_display_name:
+    type: string
+    title: "Management NAT Gateway Name"
+    description: "The Management Nat Gateway name"
+    visible:
+      and:
+        - enable_mgmt_nat_gateway
+        - deploy_management
+
+  category_nat_gateway_display_name:
+    type: string
+    title: "Category Nat Gateway Name"
+    description: "The Category Nat Gateway name"
+    visible:
+      and:
+        - deploy_ebs_category
+  
+  mgmt_service_gateway_display_name:
+    type: string
+    title: "Management Service Gateway Name"
+    description: "Management Service Gateway Name"
+    visible:
+      and:
+        - enable_mgmt_service_gateway
+        - deploy_management
+
+  category_service_gateway_display_name:
+    type: string
+    title: "Category Service Gateway Name"
+    description: "Category Service Gateway Name"
+    visible:
+      and:
+        - enable_category_service_gateway
+        - deploy_ebs_category
+
+
+  mgmt_internet_gateway_display_name:
+    type: string
+    title: "Management Internet Gateway Name"
+    description: "Management Internet Gateway Name"
+    visible:
+      and:
+        - enable_mgmt_service_gateway
+        - deploy_management
+
+  category_internet_gateway_display_name:
+    type: string
+    title: "Category Internet Gateway Name"
+    description: "Category Internet Gateway Name"
+    visible:
+      and:
+        - enable_catgory_service_gateway
+        - deploy_ebs_category

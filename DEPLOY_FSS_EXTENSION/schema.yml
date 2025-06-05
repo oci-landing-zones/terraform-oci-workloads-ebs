@@ -1,0 +1,180 @@
+# ###################################################################################################### #
+# Copyright (c) 2025 Oracle and/or its affiliates, All rights reserved.                                  #
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl. #
+# ###################################################################################################### #
+
+title: "E-Business Suite Deploy FSS Stack 1.0"
+description: "Oracle E-Business Suite Deploy FSS Stack 1.0 developed by OCI"
+schemaVersion: 1.0.0
+version: "1.0.0"
+locale: "en"
+
+###############################################################################################
+######################              Variable Groups                  ##########################
+###############################################################################################
+
+variableGroups:
+  - title: "Provider Variables"
+    visible: false
+    variables:
+      - "api_fingerprint"
+      - "api_private_key_path"
+      - "api_private_key"
+      - "region"
+      - "tenancy_ocid"
+      - "current_user_ocid"
+  
+  - title: "General Variables"
+    visible: true
+    variables:
+      - "ebs_workload_prefix"
+      - "ebs_category"
+      - "core_lz_network_cmp_ocid"
+  
+  - title: "FSS Variables"
+    visible: true
+    variables:
+      - "ebs_category_fss_subnet_ocid"
+      - "ebs_category_fss_subnet_nsg_ocid"
+      - "ebs_category_mount_target_name"
+      - "ebs_category_mount_target_path"
+
+  - title: "Hidden Variables"
+    visible: false
+    variables:
+      - "ebs_category_mount_hostname"
+      - "customize_fss_variables"
+      - "ebs_categort_fss_snapshot_policy_name"
+      - "ebs_prod_fss_snapshot_policy_frequency"
+      - "block_volumes_replication_region"
+
+
+
+###############################################################################################
+######################              Provider Variables                  #######################
+###############################################################################################
+
+variables:
+  api_fingerprint:
+    type: string
+    description: "The fingerprint of API"
+    default: "Value not required in Oracle Resource Manager."
+    title: "Api Fingerprint"
+
+  api_private_key_path:
+    type: string
+    description: "The local path to the API private key"
+    default: "Value not required in Oracle Resource Manager."
+    title: "Api Private Key Path"
+
+  region:
+    type: string
+    description: "the OCI region LZ is deployed to."
+    title: "Region"
+    required: true
+
+  tenancy_ocid:
+    type: string
+    description: "The OCID of tenancy"
+    title: "Tenancy OCID"
+
+  current_user_ocid:
+    type: string
+    description: "OCID of the current user"
+    title: "Current User OCID"
+
+###############################################################################################
+######################                    General Variables                    ################
+############################################################################################### 
+  ebs_workload_prefix:
+    type: string
+    description: "This Prefix is append to resource names to maintain segregation between different EBS Workload Stacks. Maximum 6 alphabetical characters."
+    default: "cmwrk"
+    required: true
+    title: EBS Workload Prefix
+
+  ebs_category: 
+    type: string
+    title: "EBS Category Name."
+    description: "Please provide the EBS Category Name."
+    default: "prod"
+    required: true
+  
+  core_lz_network_cmp_ocid:
+    type: oci:identity:compartment:id
+    dependsOn:
+      compartmentId: ${tenancy_ocid}
+    title: "Core LZ Network Compartment OCID."
+    description: "Please provide the Core LZ Network Compartment OCID."
+    required: true
+
+
+###############################################################################################
+######################                    FSS Variables                        ################
+###############################################################################################
+
+  ebs_category_fss_subnet_ocid:
+    type: oci:core:subnet:id
+    dependsOn:
+      compartmentId: ${core_lz_network_cmp_ocid}
+    title: "EBS Category FSS Subnet OCID."
+    description: "Please provide the EBS Category FSS Subnet OCID."
+    required: true
+
+  ebs_category_fss_subnet_nsg_ocid:
+    type: oci:core:nsg:id
+    dependsOn:
+      compartmentId: ${core_lz_network_cmp_ocid}
+    title: "EBS Category FSS Subnet NSG OCID."
+    description: "Please provide the EBS Category FSS Subnet NSG OCID."
+    required: true
+
+  customize_fss_variables:
+    type: boolean
+    title: "Customize File System Storage(FSS) Variables"
+    description: "Check to Customize EBS Workload FSS Variables.By default, the EBS Workload FSS Resources using default value."
+    default: false
+    visible: true
+
+  ebs_category_mount_target_name:
+    type: string
+    title: "EBS Category Mount Target Name."
+    description: "Please provide the EBS Category Mount Target Name."
+    required: false
+    visible: true
+
+  ebs_category_mount_target_path:
+    type: string
+    title: "EBS Category Mount Target Export Path."
+    description: "Please provide the EBS Category Mount Target Absolute Export Path. For example: \/foo."
+    required: false
+    visible: customize_fss_variables
+
+  ebs_category_mount_hostname:
+    type: string
+    title: "EBS Categort Mount Hostname Label."
+    description: "Please provide the EBS Category mount target's IP address, used for DNS Resolution."
+    required: false
+    visible: customize_fss_variables
+
+
+  ebs_category_fss_snapshot_policy_name:
+    type: string
+    title: "EBS Category FSS Snapshot Policy Name."
+    description: "Please provide name for EBS Category FSS Snapshot Policy."
+    required: false
+    visible: customize_fss_variables
+
+
+  ebs_category_fss_snapshot_policy_frequency:
+    type: enum
+    title: "EBS Category FSS Snapshot Policy Frequency."
+    description: "EBS Category Snapshot Policy Frequency : Daily, Weekly, Monthly and Yearly"
+    required: false
+    enum:
+      - "daily"
+      - "weekly"
+      - "monthly"
+      - "yearly"
+    default: "daily"
+    visible: customize_fss_variables

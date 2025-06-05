@@ -1,0 +1,248 @@
+# ###################################################################################################### #
+# Copyright (c) 2025 Oracle and/or its affiliates, All rights reserved.                                  #
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl. #
+# ###################################################################################################### #
+
+title: "E-Business Suite Deploy IAM Stack 1.0"
+description: "Oracle E-Business Suite Deploy IAM Stack Deployment 1.0 developed by OCI"
+schemaVersion: 1.0.0
+version: "1.0.0"
+locale: "en"
+
+###############################################################################################
+######################              Variable Groups                  ##########################
+###############################################################################################
+
+variableGroups:
+  - title: "Provider Variables"
+    visible: false
+    variables:
+      - "api_fingerprint"
+      - "api_private_key_path"
+      - "api_private_key"
+      - "region"
+      - "tenancy_ocid"
+      - "current_user_ocid"
+  
+  - title: "General Variables"
+    visible: true
+    variables:
+      - "ebs_workload_prefix"
+      - "deploy_ebs_mgmt"
+      - "deploy_ebs_category" 
+      - "ebs_category"
+
+  - title: "Compartment Design"
+    visible: true
+    variables:
+      - "ebs_compartment_structure"
+  
+  - title: "Compartment Variables"
+    visible: true
+    variables:
+      - "ebs_parent_compartment_ocid"
+      - "core_lz_network_compartment_ocid"
+      - "core_lz_security_compartment_ocid"
+      - "ebs_mgmt_parent_compartment_ocid"
+      - "ebs_category_parent_compartment_ocid"
+      - "customize_compartment_names"
+      - "ebs_workload_compartment_name"
+      - "ebs_mgmt_compartment_name"
+      - "ebs_category_compartment_name"
+
+  - title: "Hidden Variables"
+    visible: false
+    variables:
+      - "category_admin_group_name"
+      - "mgmt_admin_group_name"
+
+
+###############################################################################################
+######################              Provider Variables                  #######################
+###############################################################################################
+      
+variables:
+  api_fingerprint:
+    type: string
+    description: "The fingerprint of API"
+    default: "Value not required in Oracle Resource Manager."
+    title: "Api Fingerprint"
+      
+  api_private_key_path:
+    type: string
+    description: "The local path to the API private key"
+    default: "Value not required in Oracle Resource Manager."
+    title: "Api Private Key Path"
+    
+  region:
+    type: string
+    description: "the OCI region LZ is deployed to."
+    title: "Region"
+    required: true
+    
+  tenancy_ocid:
+    type: string
+    description: "The OCID of tenancy"
+    title: "Tenancy OCID"
+
+  current_user_ocid:
+    type: string
+    description: "OCID of the current user"
+    title: "Current User OCID"
+
+
+###############################################################################################
+######################              General  Variables                  #######################
+###############################################################################################
+      
+
+  ebs_workload_prefix:
+    type: string
+    description: "This Prefix is append to resource names to maintain segregation between different EBS Workload Stacks. Maximum 6 alphabetical lowercase characters."
+    default: "cmwrk"
+    required: true
+    pattern: ^[a-z]{1,6}$
+    title: "EBS Workload Prefix"
+
+  deploy_ebs_mgmt:
+    type: boolean
+    description: "Deploy EBS Management Compartment, Group and Policies."
+    required: true
+    default: true
+    title: "Deploy EBS Management IAM Resources."
+
+  deploy_ebs_category:
+    type: boolean
+    description: "Deploy EBS Category Compartment, Group and Policies."
+    required: true
+    default: false
+    title: "Deploy EBS Category IAM Resources."
+    
+  ebs_category: 
+    type: string
+    title: "EBS Category Name"
+    description: "Please provide the EBS Category Name. Lowercase only."
+    default: "prod"
+    required: true
+    pattern: ^([a-z0-9.-]){1,100}$
+    visible: deploy_ebs_category
+
+###############################################################################################
+######################              Compartment Design                     ####################
+###############################################################################################
+  
+  ebs_compartment_structure:
+    type: enum
+    title: "Deploy Single Compartment or Flexible Compartment?"
+    description: "Choose to deploy in the EBS compartment (single) or deploy MGMT and/or Category in separate (flexible) compartments."
+    required: true
+    enum:
+      - "Single Compartment Deployment"
+      - "Flexible Compartment Deployment"
+    default: "Single Compartment Deployment"
+
+
+###############################################################################################
+######################              Compartment Design                     ####################
+###############################################################################################
+  core_lz_network_compartment_ocid:
+    type: oci:identity:compartment:id
+    dependsOn:
+      compartmentId: ${tenancy_ocid}
+    title: "Core LZ Network Compartment OCID"
+    description: "Mandatory user provided OCID of Core LZ Network Compartment."
+    required: true
+    visible: true
+  
+  core_lz_security_compartment_ocid:
+    type: oci:identity:compartment:id
+    dependsOn:
+      compartmentId: ${tenancy_ocid}
+    title: "Core LZ Security Compartment OCID"
+    description: "Mandatory user provided OCID of Core LZ Security Compartment."
+    required: true
+    visible: true
+
+  ebs_parent_compartment_ocid:
+    type: oci:identity:compartment:id
+    dependsOn:
+      compartmentId: ${tenancy_ocid}
+    title: "EBS Parent Compartment OCID"
+    description: "Mandatory user provided OCID of the EBS Parent Compartment."
+    required: true
+    visible:
+      eq:
+        - ${ebs_compartment_structure}
+        - "Single Compartment Deployment"
+    
+  ebs_mgmt_parent_compartment_ocid:
+    type: oci:identity:compartment:id
+    dependsOn:
+      compartmentId: ${tenancy_ocid}
+    title: "EBS Management Parent Compartment OCID"
+    description: "Mandatory user provided OCID of the EBS Management Parent Compartment."
+    required: true
+    visible:
+      and:
+        - deploy_ebs_mgmt
+        - eq:
+          - ${ebs_compartment_structure}
+          - "Flexible Compartment Deployment"
+
+  ebs_category_parent_compartment_ocid:
+    type: oci:identity:compartment:id
+    dependsOn:
+      compartmentId: ${tenancy_ocid}
+    title: "EBS Category Parent Compartment OCID."
+    description: "Mandatory user provided OCID of the EBS Category Parent Compartment."
+    required: true
+    visible:
+      and:
+        - deploy_ebs_category
+        - eq:
+          - ${ebs_compartment_structure}
+          - "Flexible Compartment Deployment"
+
+  customize_compartment_names:
+    type: boolean
+    title: "Customize Compartment Names"
+    description: "Check to Customize EBS Compartment Names. Default names are EBS-WORKLOAD, EBS-WORKLOAD-MGMT."
+    default: false
+
+  ebs_workload_compartment_name:
+    type: string
+    description: "EBS Workload Compartment Name, where all EBS Workload resouces will be deployed. Lowercase only."
+    default: "ebs-workload"
+    pattern: ^([a-z0-9.-]){1,100}$
+    title: "EBS Workload Compartment Name."
+    visible:
+      and:
+        - customize_compartment_names
+        - eq:
+          - ${ebs_compartment_structure}
+          - "Single Compartment Deployment"
+
+  ebs_mgmt_compartment_name:
+    type: string
+    description: "EBS Workload Management Compartment Name. Lowercase only."
+    default: "ebs-management"
+    pattern: ^([a-z0-9.-]){1,100}$
+    title: "EBS Management Compartment Name."
+    visible: 
+      and:
+        - deploy_ebs_mgmt
+        - customize_compartment_names
+
+  ebs_category_compartment_name:
+    type: string
+    description: "EBS Workload Category Compartment Name. Lowercase only."
+    title: "EBS Category Compartment Name."
+    pattern: ^([a-z0-9.-]{1,100})?$
+    visible:
+      and:
+        - deploy_ebs_category
+        - customize_compartment_names
+
+  
+
+  
