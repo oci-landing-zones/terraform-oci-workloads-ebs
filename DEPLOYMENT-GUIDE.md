@@ -96,7 +96,7 @@ You can deploy the solution via the OCI RMS service.
 ### <a name="ebs2b"></a>Step 2: Deploy the EBS Workload IAM Extension
 
 1. Click to deploy the EBS Workload IAM Extension:<br>
-   [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/oci-landing-zones/terraform-oci-core-landingzone/archive/refs/heads/master.zip)
+   [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/oci-landing-zones//terraform-oci-workloads-ebs/archive/refs/heads/master.zip)
 
 2. Accept terms, wait for the configuration to load.
 
@@ -112,7 +112,7 @@ You can deploy the solution via the OCI RMS service.
 ### <a name="ebs2c"></a>Step 3: Deploy the EBS Workload Network Extension
 
 1. Click to deploy the EBS Workload Network Extension:<br>
-   [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/oci-landing-zones/terraform-oci-core-landingzone/archive/refs/heads/master.zip)
+   [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/oci-landing-zones/terraform-oci-workloads-ebs/archive/refs/heads/master.zip)
 
 2. Accept terms, wait for the configuration to load.
 
@@ -155,7 +155,7 @@ You can deploy the solution via the OCI RMS service.
 ### <a name="ebs2f"></a>Step 6: Deploy EBS Workload FSS Extension
 
 1. Click to deploy the EBS Workload FSS Extension:<br>
-   [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/oci-landing-zones/terraform-oci-core-landingzone/archive/refs/heads/master.zip)
+   [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/oci-landing-zones/terraform-oci-workloads-ebs/archive/refs/heads/master.zip)
 
 2. Accept terms, wait for the configuration to load.
 
