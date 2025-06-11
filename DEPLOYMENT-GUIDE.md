@@ -177,7 +177,7 @@ You can deploy the solution via the OCI RMS service.
 | Step 9b) Compartment Name | clzwrk-ebs-management |
 | Step 9f-ii) Select a Virtual Cloud Network | clzwrk-ebs-management-vcn |
 | Step 9f-iv) Select a subnet | clzwrk-ebs-mgmt-app-subnet |
-| Step 9f-vi-ii) Use network security groups | clzwrk-ebs-mgmt-lbr-nsg |
+| Step 9f-vi-ii) Use network security groups | clzwrk-ebs-mgmt-app-nsg |
 
 2. Once the Cloud Manager is provisioned, attach the NSG "clzwrk-ebs-mgmt-lbaas-nsg" on Load balancer demolbaas1 and demolbaas2.
 
