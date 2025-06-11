@@ -1,3 +1,6 @@
+# June 11, 2025 Release Notes - 1.0.1
+1. Updated Deployment Guide.
+
 # June 6, 2025 Release Notes - 1.0.0
 1. Initial release of E-Business Suite (EBS) Workload Extensions for Core Landing Zone.
 
